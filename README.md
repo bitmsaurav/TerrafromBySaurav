@@ -1,35 +1,66 @@
 
-# Azure - HashiCorp Certified: Terraform 
+# 👋 Hi, I'm Saurav Kunal
 
+Welcome to my GitHub profile! I'm a DevOps & Cloud Engineer with 10+ years of experience in software development, cloud infrastructure, and automation. I specialize in designing scalable cloud architectures, Infrastructure as Code (Terraform), CI/CD pipelines, and secure DevOps practices across Azure and AWS environments.
 
+----------
 
+## 🚀 About Me
 
+-   💼 Dev & DevOps professional with 10+ years of experience
+    
+-   ☁️ Cloud Platforms: Azure, AWS,GCP
+    
+-   🛠️ Expertise: Terraform, CI/CD, Kubernetes, Microservices
+    
+-   🔐 Interests: DevSecOps, Cloud Security, Automation
+    
+-   📍 Based in India
+    
 
-## Terraform Functions Used
+----------
 
-1.  element() function
-2.  file() function
-3.  filebase64() function
-4.  toset() function
-5.  length() function
-6.  lookup() function
-7.  substr() function
-8.  contains() function
-9.  lower() function
-10.  upper() function
-11.  regex() function
-12.  can() function
-13.  keys() function
-14.  values() function
-15.  sum() function
+## 🔗 Connect with Me
 
+-   GitHub: https://github.com/bitmsaurav
+    
+-   LinkedIn: https://www.linkedin.com/in/saurav-k-0aa99047/
+    
 
+----------
 
-## Additional References
+## 📌 Featured Skills
 
+-   Infrastructure as Code (Terraform)
+    
+-   Azure & AWS Cloud Architecture
+    
+-   CI/CD (Azure DevOps, GitHub Actions)
+    
+-   Kubernetes & Containerization
+    
+-   DevSecOps & Cloud Security
+    
+-   Automation & Scripting
+    
 
--   [Certification Curriculum](https://www.hashicorp.com/certification/terraform-associate)
--   [Certification Preparation](https://learn.hashicorp.com/collections/terraform/certification)
--   [Study Guide](https://learn.hashicorp.com/tutorials/terraform/associate-study?in=terraform/certification)
--   [Exam Review Guide](https://learn.hashicorp.com/tutorials/terraform/associate-review?in=terraform/certification)
--   [Sample Questions](https://learn.hashicorp.com/tutorials/terraform/associate-questions?in=terraform/certification)
+----------
+
+## 📂 What You'll Find Here
+
+This GitHub profile contains projects and templates related to:
+
+-   Terraform infrastructure modules
+    
+-   Cloud landing zones & secure architectures
+    
+-   CI/CD pipelines and DevOps automation
+    
+-   Migration and cloud deployment frameworks
+    
+-   AI‑driven DevOps and automation experiments
+    
+
+----------
+
+⭐️ _Feel free to explore my repositories and connect with me!_
