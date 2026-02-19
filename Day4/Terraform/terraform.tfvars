@@ -1,0 +1,6 @@
+business_unit          = "it"
+envitnoment            = "stg"
+resource_group_name    = "rg-tfvars"
+resource_location_name = "eastus"
+virtual_network_name   = "vnet-tfvars"
+subnet_name            = "subnet-tfvars"
