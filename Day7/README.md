@@ -135,7 +135,7 @@ terraform destroy -auto-approve
 rm -rf .terraform* 
 rm -rf terraform.tfstate*
 
-# Rollback c4-virtual-network.tf (Below line should be enabled)
+# Rollback virtual-network.tf (Below line should be enabled)
 address_space       = var.virtual_network_address_space
 
 ## References
