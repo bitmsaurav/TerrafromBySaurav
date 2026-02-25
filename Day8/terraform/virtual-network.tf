@@ -5,7 +5,7 @@ resource "azurerm_virtual_network" "myvnet" {
   address_space       = var.virtual_network_address_space
   location            = azurerm_resource_group.myrg.location
   resource_group_name = azurerm_resource_group.myrg.name
-  tags                = var.commn_tags
+  tags = var.commn_tags
 }
 
 # create subnet
@@ -27,7 +27,7 @@ resource "azurerm_public_ip" "mypublicip" {
   allocation_method   = "Static"
   domain_name_label   = "app1-vm-${random_string.myrandom.id}"
   #sku=var.public_ip_sku["eastus"]
-  sku  = lookup(var.public_ip_sku, var.resource_location_name, "Basic")
+  sku = lookup(var.public_ip_sku,var.resource_location_name,"Basic")
   tags = var.commn_tags
 }
 
@@ -42,5 +42,5 @@ resource "azurerm_network_interface" "myvmnic" {
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.mypublicip.id
   }
-  tags = var.commn_tags
+
 }
