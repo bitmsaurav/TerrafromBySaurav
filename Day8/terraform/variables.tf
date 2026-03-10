@@ -59,9 +59,9 @@ variable "public_ip_sku" {
   description = "this is public ip sku"
   type        = map(string)
   default = {
-    "eastus"      = "Basic"
-    "centerindia" = "Standard"
-    "westus" = "basic"
+    "1-eastus"      : "Basic"
+    "2-centerindia" : "Standard"
+    "3-westus" = "basic"
   }
 
 }
