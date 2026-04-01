@@ -1,0 +1,8 @@
+bussiness_unit          = "IT"
+environment_name        = "PROD"
+resource_group_name     = "yashasrirgladu"
+resource_group_location = "eastus"
+virtual_network_name    = "vnet"
+subnet_name             = "subnet"
+publicip_name           = "publicip"
+network_interface_name  = "nic"
