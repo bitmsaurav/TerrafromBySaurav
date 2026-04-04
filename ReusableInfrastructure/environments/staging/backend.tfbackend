@@ -1,0 +1,7 @@
+# Staging Environment Backend Configuration
+# Uses Azure Storage backend for remote state management
+
+resource_group_name  = "terraform-state-rg"
+storage_account_name = "tfstatestoragedev"
+container_name       = "staging-tfstate"
+key                  = "staging.tfstate"

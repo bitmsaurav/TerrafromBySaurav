@@ -1,0 +1,16 @@
+# Development Environment Backend Configuration
+# For local development, you can use local backend or remote Azure Storage
+
+# Option 1: Azure Storage Backend (recommended for teams)
+# Uncomment backend block in versions.tf and run:
+# terraform init -backend-config=environments/dev/backend.tfbackend
+
+# resource_group_name  = "terraform-state-rg"
+# storage_account_name = "tfstatestoragedev"
+# container_name       = "dev-tfstate"
+# key                  = "dev.tfstate"
+
+# Option 2: Local Backend (for local development only)
+# No configuration needed, state will be stored in terraform.tfstate
+
+skip_provider_registration = false

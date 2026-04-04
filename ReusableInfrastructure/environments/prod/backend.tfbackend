@@ -1,0 +1,7 @@
+# Production Environment Backend Configuration
+# Uses Azure Storage backend with secure settings
+
+resource_group_name  = "terraform-state-rg-prod"
+storage_account_name = "tfstatestorageprod"
+container_name       = "prod-tfstate"
+key                  = "prod.tfstate"

@@ -1,0 +1,4 @@
+resource_group_name  = "rg-enterprise-lz-tfstate-dev"
+storage_account_name = "enterpriselzstateproddev"
+container_name       = "tfstate"
+key                  = "enterprise-landing-zone-dev.tfstate"

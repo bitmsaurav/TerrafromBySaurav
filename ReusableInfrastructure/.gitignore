@@ -1,0 +1,59 @@
+# Terraform .gitignore
+# Sensitive files and local artifacts
+
+# Terraform directories
+.terraform/
+.terraform.lock.hcl
+
+# Terraform files
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.example.tfvars
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+.terraform.tfvars
+.terraform.tfvars.json
+
+# IDE
+.vscode/
+*.swp
+*.swo
+*~
+.idea/
+*.iml
+.DS_Store
+
+# SSH keys
+ssh/
+*.pem
+*.pub
+!ssh/.gitkeep
+
+# Outputs
+*.json
+outputs/
+*.tfplan
+
+# Local environment
+.env
+.env.local
+.env.*.local
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+*.exe
+*.pid
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+temp/

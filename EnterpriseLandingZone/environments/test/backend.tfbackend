@@ -1,0 +1,4 @@
+resource_group_name  = "rg-enterprise-lz-tfstate-test"
+storage_account_name = "enterpriselzstatetest"
+container_name       = "tfstate"
+key                  = "enterprise-landing-zone-test.tfstate"

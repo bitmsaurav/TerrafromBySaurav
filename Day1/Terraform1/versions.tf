@@ -23,6 +23,6 @@ resource "random_string" "myrandom" {
   upper   = false
   lower   = false
   special = false
-  number= true
+  number  = true
 
 }

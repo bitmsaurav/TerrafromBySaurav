@@ -46,7 +46,7 @@
 #multipal resource groups
 variable "multipal_reosuser_group" {
   description = "list of object "
-  sensitive = true
+  sensitive   = true
   type = list(object({
     name     = string
     location = string

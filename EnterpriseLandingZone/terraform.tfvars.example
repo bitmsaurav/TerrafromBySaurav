@@ -1,0 +1,207 @@
+project_name       = "enterpriselz"
+environment        = "prod"
+owner              = "platform-team@example.com"
+cost_center        = "CC1001"
+blue_green_enabled = true
+deployment_slot    = "blue"
+ssh_public_key_path = "~/.ssh/id_rsa.pub"
+
+environment_settings = {
+  dev = {
+    enable_monitoring    = true
+    enable_policy        = false
+    enable_vnet_peering = false
+    approval_required    = false
+    tags = {
+      Stage = "Dev"
+    }
+  }
+  test = {
+    enable_monitoring    = true
+    enable_policy        = true
+    enable_vnet_peering = true
+    approval_required    = false
+    tags = {
+      Stage = "Test"
+    }
+  }
+  stage = {
+    enable_monitoring    = true
+    enable_policy        = true
+    enable_vnet_peering = true
+    approval_required    = true
+    tags = {
+      Stage = "Stage"
+    }
+  }
+  prod = {
+    enable_monitoring    = true
+    enable_policy        = true
+    enable_vnet_peering = true
+    approval_required    = true
+    tags = {
+      Stage = "Prod"
+    }
+  }
+}
+
+region_configs = {
+  centralindia = {
+    role          = "hub"
+    location      = "centralindia"
+    vnet_cidr     = "10.0.0.0/16"
+    subnets = {
+      hub-gateway    = { prefix = "10.0.1.0/24" }
+      hub-monitoring = { prefix = "10.0.2.0/24" }
+      hub-management = { prefix = "10.0.3.0/24" }
+    }
+    nsg_rules = {
+      allow_ssh = {
+        priority              = 100
+        direction             = "Inbound"
+        access                = "Allow"
+        protocol              = "Tcp"
+        source_prefixes       = ["10.0.0.0/8"]
+        destination_prefixes  = ["*"]
+        source_port_ranges    = ["*"]
+        destination_port_ranges = ["22"]
+        description           = "Allow internal SSH access"
+      }
+      allow_vnet = {
+        priority              = 200
+        direction             = "Inbound"
+        access                = "Allow"
+        protocol              = "*"
+        source_prefixes       = ["10.0.0.0/8"]
+        destination_prefixes  = ["*"]
+        source_port_ranges    = ["*"]
+        destination_port_ranges = ["*"]
+        description           = "Allow hub VNet connectivity"
+      }
+    }
+    vm_count        = 10
+    vm_size         = "Standard_D2s_v3"
+    vm_os_disk_type = "Premium_LRS"
+    vm_image = {
+      publisher = "Canonical"
+      offer     = "UbuntuServer"
+      sku       = "22_04-lts"
+      version   = "latest"
+    }
+    default_subnet  = "hub-management"
+    enable_public_ip = false
+  }
+
+  eastus = {
+    role          = "spoke"
+    location      = "eastus"
+    vnet_cidr     = "10.1.0.0/16"
+    subnets = {
+      app-subnet = { prefix = "10.1.1.0/24" }
+      db-subnet  = { prefix = "10.1.2.0/24" }
+    }
+    nsg_rules = {
+      allow_app = {
+        priority              = 100
+        direction             = "Inbound"
+        access                = "Allow"
+        protocol              = "Tcp"
+        source_prefixes       = ["10.0.0.0/8"]
+        destination_prefixes  = ["*"]
+        source_port_ranges    = ["*"]
+        destination_port_ranges = ["80", "443"]
+        description           = "Allow internal app traffic"
+      }
+      allow_ssh = {
+        priority              = 200
+        direction             = "Inbound"
+        access                = "Allow"
+        protocol              = "Tcp"
+        source_prefixes       = ["10.0.0.0/8"]
+        destination_prefixes  = ["*"]
+        source_port_ranges    = ["*"]
+        destination_port_ranges = ["22"]
+        description           = "Allow internal SSH"
+      }
+    }
+    vm_count        = 20
+    vm_size         = "Standard_D2s_v3"
+    vm_os_disk_type = "Premium_LRS"
+    vm_image = {
+      publisher = "Canonical"
+      offer     = "UbuntuServer"
+      sku       = "22_04-lts"
+      version   = "latest"
+    }
+    default_subnet  = "app-subnet"
+    enable_public_ip = true
+  }
+
+  westeurope = {
+    role          = "spoke"
+    location      = "westeurope"
+    vnet_cidr     = "10.2.0.0/16"
+    subnets = {
+      app-subnet = { prefix = "10.2.1.0/24" }
+      db-subnet  = { prefix = "10.2.2.0/24" }
+    }
+    nsg_rules = {
+      allow_app = {
+        priority              = 100
+        direction             = "Inbound"
+        access                = "Allow"
+        protocol              = "Tcp"
+        source_prefixes       = ["10.0.0.0/8"]
+        destination_prefixes  = ["*"]
+        source_port_ranges    = ["*"]
+        destination_port_ranges = ["80", "443"]
+        description           = "Allow internal app traffic"
+      }
+      allow_ssh = {
+        priority              = 200
+        direction             = "Inbound"
+        access                = "Allow"
+        protocol              = "Tcp"
+        source_prefixes       = ["10.0.0.0/8"]
+        destination_prefixes  = ["*"]
+        source_port_ranges    = ["*"]
+        destination_port_ranges = ["22"]
+        description           = "Allow internal SSH"
+      }
+    }
+    vm_count        = 20
+    vm_size         = "Standard_D2s_v3"
+    vm_os_disk_type = "Premium_LRS"
+    vm_image = {
+      publisher = "Canonical"
+      offer     = "UbuntuServer"
+      sku       = "22_04-lts"
+      version   = "latest"
+    }
+    default_subnet  = "app-subnet"
+    enable_public_ip = true
+  }
+}
+
+policy_definitions = {
+  require-costcenter-tag = {
+    display_name = "Audit missing CostCenter tag"
+    description  = "Audit all resources that are missing the CostCenter tag."
+    metadata = {
+      category = "Tagging"
+      severity = "Low"
+    }
+    scope = ""
+    policy_rule = {
+      if = {
+        field  = "tags.CostCenter"
+        exists = false
+      }
+      then = {
+        effect = "audit"
+      }
+    }
+  }
+}
+
+security_role_assignments = {}

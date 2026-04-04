@@ -17,22 +17,22 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "rg" {
-    name = "rg-tuple-demo"
-    location = "eastus"
-  
+  name     = "rg-tuple-demo"
+  location = "eastus"
+
 }
 resource "azurerm_virtual_network" "vnet" {
-    name="vnet-tuple-demo"
-    location = azurerm_resource_group.rg.location
-    resource_group_name = azurerm_resource_group.rg.name
-    address_space = ["10.0.0.0/16"]
-  
+  name                = "vnet-tuple-demo"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  address_space       = ["10.0.0.0/16"]
+
 }
 resource "azurerm_subnet" "subnet" {
-    name= var.subnet_info[0]
-    resource_group_name = azurerm_resource_group.rg.name
-    virtual_network_name = azurerm_virtual_network.vnet.name
-    address_prefixes = [var.subnet_info[1]]
+  name                 = var.subnet_info[0]
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = [var.subnet_info[1]]
 
-  
+
 }

@@ -1,0 +1,122 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - main
+
+variables:
+  environment: 'dev'
+  deploymentSlot: 'blue'
+  azureServiceConnection: 'AzureServiceConnection'
+  keyVaultName: 'enterprise-lz-kv'
+  backendConfigFile: 'environments/$(environment)/backend.tfbackend'
+  tfvars: 'terraform.tfvars'
+  terraformVersion: '1.5.6'
+
+stages:
+  - stage: Validate
+    displayName: Validate
+    jobs:
+      - job: Validate
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - checkout: self
+          - task: Bash@3
+            displayName: Install toolchain
+            inputs:
+              targetType: 'inline'
+              script: |
+                sudo apt-get update -y
+                sudo apt-get install -y unzip curl python3-pip
+                curl -fsSL https://releases.hashicorp.com/terraform/${terraformVersion}/terraform_${terraformVersion}_linux_amd64.zip -o terraform.zip
+                unzip terraform.zip
+                sudo mv terraform /usr/local/bin/
+                terraform version
+                pip3 install --upgrade pip
+                pip3 install checkov
+                curl -LO https://github.com/aquasecurity/tfsec/releases/latest/download/tfsec-linux-amd64
+                chmod +x tfsec-linux-amd64
+                sudo mv tfsec-linux-amd64 /usr/local/bin/tfsec
+                curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
+          - task: AzureCLI@2
+            displayName: Terraform init and validate
+            inputs:
+              azureSubscription: $(azureServiceConnection)
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                terraform init -backend-config=$(backendConfigFile) -input=false
+                terraform validate
+
+  - stage: SecurityScan
+    displayName: Security Scan
+    jobs:
+      - job: Security
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - checkout: self
+          - task: Bash@3
+            displayName: Run Checkov, tfsec, and Trivy
+            inputs:
+              targetType: 'inline'
+              script: |
+                pip3 install checkov
+                checkov -d . --quiet
+                tfsec .
+                trivy fs --exit-code 1 --severity HIGH,CRITICAL . || true
+
+  - stage: Plan
+    displayName: Plan
+    dependsOn: SecurityScan
+    jobs:
+      - job: Plan
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - checkout: self
+          - task: AzureCLI@2
+            displayName: Terraform plan
+            inputs:
+              azureSubscription: $(azureServiceConnection)
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                terraform init -backend-config=$(backendConfigFile) -input=false
+                terraform plan -var-file=$(tfvars) -out=tfplan
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: 'tfplan'
+              artifact: 'terraform-plan'
+
+  - stage: Apply
+    displayName: Apply
+    dependsOn: Plan
+    condition: succeeded()
+    jobs:
+      - deployment: Apply
+        displayName: Terraform Apply
+        environment: '$(environment)-terraform'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    artifact: 'terraform-plan'
+                    path: '.'
+                - task: AzureCLI@2
+                  displayName: Terraform apply
+                  inputs:
+                    azureSubscription: $(azureServiceConnection)
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      terraform init -backend-config=$(backendConfigFile) -input=false
+                      terraform apply -auto-approve tfplan

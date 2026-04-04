@@ -33,6 +33,6 @@ output "virtual_network_name_list_map_two_input" {
 }
 output "virtual_network_name_list_map_one_input" {
   description = "virtual network -for loop one input and map output with VNET id and vnet name"
-  value       = { for  vnet in azurerm_virtual_network.vnet : vnet.id => vnet.name }
+  value       = { for vnet in azurerm_virtual_network.vnet : vnet.id => vnet.name }
 
 }
