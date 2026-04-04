@@ -1,0 +1,98 @@
+trigger:
+  branches:
+    include:
+    - main
+  paths:
+    include:
+    - environments/*
+
+parameters:
+- name: environment
+  displayName: 'Environment'
+  type: string
+  default: dev
+  values:
+  - dev
+  - test
+  - stage
+  - prod
+
+stages:
+- stage: Validate
+  jobs:
+  - job: TerraformValidate
+    steps:
+    - task: TerraformInstaller@0
+      inputs:
+        terraformVersion: '1.5.0'
+    - task: TerraformTaskV3@3
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        backendServiceArm: 'Azure-Subscription'
+        backendAzureRmResourceGroupName: 'tfstate-rg'
+        backendAzureRmStorageAccountName: 'tfstatestorage'
+        backendAzureRmContainerName: 'tfstate'
+        backendAzureRmKey: '${{ parameters.environment }}.terraform.tfstate'
+    - script: terraform workspace select ${{ parameters.environment }} || terraform workspace new ${{ parameters.environment }}
+      displayName: 'Select or Create Workspace'
+    - task: TerraformTaskV3@3
+      inputs:
+        provider: 'azurerm'
+        command: 'validate'
+
+- stage: SecurityScan
+  jobs:
+  - job: Checkov
+    steps:
+    - script: |
+        pip install checkov
+        checkov -d . --framework terraform --output cli
+      displayName: 'Run Checkov Security Scan'
+  - job: Trivy
+    steps:
+    - script: |
+        # Install Trivy
+        curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+        trivy config .
+      displayName: 'Run Trivy SCA Scan'
+
+- stage: Plan
+  jobs:
+  - job: TerraformPlan
+    steps:
+    - script: terraform workspace select ${{ parameters.environment }}
+      displayName: 'Select Workspace'
+    - task: TerraformTaskV3@3
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        environmentServiceNameAzureRM: 'Azure-Subscription'
+
+- stage: Approval
+  condition: and(succeeded(), eq('${{ parameters.environment }}', 'prod'))
+  jobs:
+  - job: ManualApproval
+    displayName: 'Wait for approval'
+    pool: server
+    steps:
+    - task: ManualValidation@0
+      inputs:
+        notifyUsers: 'approvers@company.com'
+        instructions: 'Please review the Terraform plan and approve for production deployment.'
+
+- stage: Apply
+  dependsOn: 
+  - Plan
+  - Approval
+  condition: or(succeeded(), eq('${{ parameters.environment }}', 'dev'), eq('${{ parameters.environment }}', 'test'), eq('${{ parameters.environment }}', 'stage'))
+  jobs:
+  - job: TerraformApply
+    steps:
+    - script: terraform workspace select ${{ parameters.environment }}
+      displayName: 'Select Workspace'
+    - task: TerraformTaskV3@3
+      inputs:
+        provider: 'azurerm'
+        command: 'apply'
+        environmentServiceNameAzureRM: 'Azure-Subscription'

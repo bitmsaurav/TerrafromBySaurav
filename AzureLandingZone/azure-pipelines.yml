@@ -1,0 +1,74 @@
+trigger:
+  branches:
+    include:
+    - main
+
+stages:
+- stage: Validate
+  jobs:
+  - job: Validate
+    steps:
+    - task: TerraformInstaller@0
+      inputs:
+        terraformVersion: '1.0.0'
+    - task: TerraformTaskV2@2
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/environments/dev'
+        backendServiceArm: 'Azure-Dev'
+        backendAzureRmResourceGroupName: $(backendRG)
+        backendAzureRmStorageAccountName: $(backendSA)
+        backendAzureRmContainerName: 'tfstate'
+        backendAzureRmKey: 'dev.terraform.tfstate'
+    - task: TerraformTaskV2@2
+      inputs:
+        provider: 'azurerm'
+        command: 'validate'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/environments/dev'
+    - task: Checkov@1
+      inputs:
+        checkovVersion: '2'
+        framework: 'terraform'
+        workingDirectory: '$(System.DefaultWorkingDirectory)'
+
+- stage: PlanDev
+  jobs:
+  - job: Plan
+    steps:
+    - task: TerraformTaskV2@2
+      inputs:
+        command: 'plan'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/environments/dev'
+
+- stage: ApplyDev
+  jobs:
+  - job: Apply
+    steps:
+    - task: TerraformTaskV2@2
+      inputs:
+        command: 'apply'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/environments/dev'
+
+- stage: PlanProd
+  jobs:
+  - job: Plan
+    steps:
+    - task: TerraformTaskV2@2
+      inputs:
+        command: 'plan'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/environments/prod'
+
+- stage: ApplyProd
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  - deployment: Apply
+    environment: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: TerraformTaskV2@2
+            inputs:
+              command: 'apply'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/environments/prod'

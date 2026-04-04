@@ -1,0 +1,134 @@
+resource_prefix = "myproject"
+owner           = "team@company.com"
+cost_center     = "IT-001"
+project         = "LandingZone"
+
+regions = ["Central India", "East US", "West Europe"]
+
+vnets = {
+  hub-cin = {
+    name                = "hub-cin-vnet"
+    location            = "Central India"
+    resource_group_name = "myproject-dev-cin-rg"
+    address_space       = ["10.0.0.0/16"]
+    tags                = {}
+  }
+  spoke1-cin = {
+    name                = "spoke1-cin-vnet"
+    location            = "Central India"
+    resource_group_name = "myproject-dev-cin-rg"
+    address_space       = ["10.1.0.0/16"]
+    tags                = {}
+  }
+  # Add more for other regions
+}
+
+subnets = {
+  hub-gateway-cin = {
+    name                 = "GatewaySubnet"
+    resource_group_name  = "myproject-dev-cin-rg"
+    vnet_key             = "hub-cin"
+    address_prefixes     = ["10.0.0.0/24"]
+  }
+  spoke1-web-cin = {
+    name                 = "web-subnet"
+    resource_group_name  = "myproject-dev-cin-rg"
+    vnet_key             = "spoke1-cin"
+    address_prefixes     = ["10.1.1.0/24"]
+  }
+  # Add more subnets
+}
+
+nsgs = {
+  web-nsg = {
+    name                = "web-nsg"
+    location            = "Central India"
+    resource_group_name = "myproject-dev-cin-rg"
+    security_rules      = [
+      {
+        name                       = "Allow-HTTP"
+        priority                   = 100
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = "*"
+        destination_port_range     = "80"
+        source_address_prefix      = "*"
+        destination_address_prefix = "*"
+      }
+    ]
+    tags = {}
+  }
+}
+
+subnet_nsg_associations = {
+  web-subnet-nsg = {
+    subnet_id = "subnet_id_from_output"  # Use data or reference
+    nsg_key   = "web-nsg"
+  }
+}
+
+vms = {
+  for i in range(50) : "vm-${i}" => {
+    name                = "vm-${i}"
+    location            = "Central India"
+    resource_group_name = "myproject-dev-cin-rg"
+    size                = "Standard_B2s"
+    os_type             = "linux"
+    admin_username      = "adminuser"
+    admin_password      = "P@ssw0rd123!"
+    subnet_id           = "subnet_id_from_output"
+    source_image_reference = {
+      publisher = "Canonical"
+      offer     = "Ubuntu2204"
+      sku       = "22_04-lts-gen2"
+      version   = "latest"
+    }
+    tags = {}
+  }
+}
+
+log_analytics_workspaces = {
+  central-law = {
+    name                = "central-law"
+    location            = "Central India"
+    resource_group_name = "myproject-dev-cin-rg"
+    sku                 = "PerGB2018"
+    retention_in_days   = 30
+    tags                = {}
+  }
+}
+
+diagnostic_settings = {}
+
+policy_definitions = {}
+
+policy_assignments = {}
+
+storage_accounts = {
+  tfstate-sa = {
+    name                     = "tfstatestorage"
+    resource_group_name      = "tfstate-rg"
+    location                 = "Central India"
+    account_tier             = "Standard"
+    account_replication_type = "GRS"
+    tags                     = {}
+  }
+}
+
+storage_containers = {
+  tfstate-container = {
+    name                = "tfstate"
+    storage_account_key = "tfstate-sa"
+  }
+}
+
+public_ips = {}
+
+load_balancers = {}
+
+backend_address_pools = {}
+
+probes = {}
+
+rules = {}
