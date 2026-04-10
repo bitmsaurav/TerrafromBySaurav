@@ -1,0 +1,10 @@
+bussiness_unit = "it"
+# environment_name = "prod"
+
+resource_group_name     = "yrg"
+resource_group_location = "eastus"
+virtual_network_name    = "myvnet"
+subnet_name             = "mysubnet"
+publicip_name           = "publicip"
+network_interface_name  = "myvmnic"
+virtual_machine_name    = "vm"
