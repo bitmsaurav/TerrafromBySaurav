@@ -106,5 +106,5 @@ rm -rf .terraform*
 rm -rf terraform.tfstate*
 
 # Comment Resource Arguments
-Change-1: c2-resource-group.tf
+Change-1: resource-group.tf
 - Comment all resources and uncomment them when learning
